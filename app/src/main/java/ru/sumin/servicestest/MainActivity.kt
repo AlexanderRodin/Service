@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import ru.sumin.servicestest.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -21,34 +22,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         binding.simpleService.setOnClickListener {
+            stopService(MyForegroundService.newIntent(this))
             startService(MyService.newIntent(this, 25))
         }
         binding.foregroundService.setOnClickListener {
-            showNotification()
-        }
-
-    }
-
-    private fun showNotification() {
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(
-                CHANEL_ID,
-                CHANEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT
+            ContextCompat.startForegroundService(
+                this,
+                MyForegroundService.newIntent(this)
             )
-            notificationManager.createNotificationChannel(notificationChannel)
         }
-        val notification = NotificationCompat.Builder(this, CHANEL_ID)
-            .setContentTitle("Title")
-            .setContentText("Text")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .build()
-        notificationManager.notify(id++, notification)
-    }
 
-    companion object {
-        private const val CHANEL_ID = "chanel_id"
-        private const val CHANEL_NAME = "chanel_name"
+        binding.intentService.setOnClickListener {
+            ContextCompat.startForegroundService(
+                this,
+                MyIntentService.newIntent(this)
+            )
+        }
     }
 }
